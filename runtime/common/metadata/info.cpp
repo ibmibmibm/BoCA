@@ -101,24 +101,95 @@ String BoCA::Info::GetOtherInfo(const String &key) const
 	return NIL;
 }
 
-Bool BoCA::Info::SetOtherInfo(const String &key, const String &value)
+Array<String> BoCA::Info::GetOtherInfoList(const String &key) const
 {
+	Array<String>	 values;
+
 	foreach (const String &info, other)
 	{
 		Int	 separator = info.Find(":");
 
-		if (info.Head(separator) == key)
-		{
-			if (value != NIL) other.SetNth(foreachindex, String(key).Append(":").Append(value));
-			else		  other.RemoveNth(foreachindex);
+		if (info.Head(separator) == key) values.Add(info.Tail(info.Length() - separator - 1));
+	}
 
-			return True;
-		}
+	return values;
+}
+
+Array<String> BoCA::Info::GetOtherInfoKeys() const
+{
+	Array<String>	 keys;
+
+	foreach (const String &info, other)
+	{
+		String	 key   = info.Head(info.Find(":"));
+		Bool	 found = False;
+
+		foreach (const String &listed, keys) if (listed == key) { found = True; break; }
+
+		if (!found) keys.Add(key);
+	}
+
+	return keys;
+}
+
+Bool BoCA::Info::SetOtherInfo(const String &key, const String &value)
+{
+	/* Find the first entry with this key.
+	 */
+	Int	 keyIndex = -1;
+
+	for (Int i = 0; i < other.Length(); i++)
+	{
+		const String	&info	   = other.GetNth(i);
+		Int		 separator = info.Find(":");
+
+		if (info.Head(separator) == key) { keyIndex = i; break; }
+	}
+
+	/* Remove every later entry with this key.
+	 */
+	for (Int i = other.Length() - 1; i > keyIndex; i--)
+	{
+		const String	&info	   = other.GetNth(i);
+		Int		 separator = info.Find(":");
+
+		if (info.Head(separator) == key) other.RemoveNth(i);
+	}
+
+	/* Replace the first entry in place, remove it, or append a new one.
+	 */
+	if	(keyIndex >= 0 && value != NIL) other.SetNth(keyIndex, String(key).Append(":").Append(value));
+	else if (keyIndex >= 0)			 other.RemoveNth(keyIndex);
+	else if (value != NIL)			 other.Add(String(key).Append(":").Append(value));
+
+	return True;
+}
+
+Bool BoCA::Info::AddOtherInfo(const String &key, const String &value)
+{
+	if (value == NIL) return False;
+
+	/* Do not add a value that this key already has.
+	 */
+	foreach (const String &info, other)
+	{
+		Int	 separator = info.Find(":");
+
+		if (info.Head(separator) == key && info.Tail(info.Length() - separator - 1) == value) return False;
 	}
 
 	other.Add(String(key).Append(":").Append(value));
 
 	return True;
+}
+
+Bool BoCA::Info::AddOtherInfo(const String &key, const Array<String> &values)
+{
+	Bool	 added = False;
+
+	foreach (const String &value, values) if (AddOtherInfo(key, value)) added = True;
+
+	return added;
 }
 
 Bool BoCA::Info::IsISRC(const String &isrc)

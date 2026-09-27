@@ -151,7 +151,23 @@ namespace BoCA
 			Bool			 HasOtherInfo(const String &) const;
 
 			String			 GetOtherInfo(const String &) const;
+
+			/* Return every value of a key in list order.
+			 */
+			Array<String>		 GetOtherInfoList(const String &) const;
+
+			/* Return each key once in order of first appearance.
+			 */
+			Array<String>		 GetOtherInfoKeys() const;
+
+			/* Replace every value of a key with one value; NIL removes the key.
+			 */
 			Bool			 SetOtherInfo(const String &, const String &);
+
+			/* Append values to a key; skip empty values and values the key already has.
+			 */
+			Bool			 AddOtherInfo(const String &, const String &);
+			Bool			 AddOtherInfo(const String &, const Array<String> &);
 
 			static Bool		 IsISRC(const String &);
 
