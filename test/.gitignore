@@ -1,0 +1,11 @@
+*.o
+*.so
+*.dylib
+*.dll
+codecs/
+data/tmp-*
+picturedata
+multivalue
+discmetadata
+cddb
+musicbrainz
