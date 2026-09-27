@@ -192,6 +192,21 @@ Bool BoCA::Info::AddOtherInfo(const String &key, const Array<String> &values)
 	return added;
 }
 
+Void BoCA::Info::AddMissingOtherInfo(const Array<String> &entries)
+{
+	const Array<String>	&keys = GetOtherInfoKeys();
+
+	foreach (const String &entry, entries)
+	{
+		String	 key   = entry.Head(entry.Find(":"));
+		Bool	 found = False;
+
+		foreach (const String &listed, keys) if (listed == key) { found = True; break; }
+
+		if (!found) other.Add(entry);
+	}
+}
+
 Bool BoCA::Info::IsISRC(const String &isrc)
 {
 	/* List of assigned ISO 3166-1 ALPHA-2 codes.
